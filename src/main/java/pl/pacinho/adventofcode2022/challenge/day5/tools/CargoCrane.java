@@ -18,15 +18,22 @@ public class CargoCrane {
 
     public void crateMover9000() {
         input.instructions()
-                .forEach(this::move);
+                .forEach(i -> move(i, false));
     }
 
-    private void move(InstructionDto instructionDto) {
+    public void crateMover9001() {
+        input.instructions()
+                .forEach(i -> move(i, true));
+    }
+
+    private void move(InstructionDto instructionDto, boolean reverse) {
         Deque<String> target = input.stacks().get(instructionDto.to());
         Deque<String> from = input.stacks().get(instructionDto.from());
-        IntStream.rangeClosed(1, instructionDto.count())
+        List<String> list = IntStream.rangeClosed(1, instructionDto.count())
                 .mapToObj(i -> from.poll())
-                .forEach(target::addFirst);
+                .collect(Collectors.toList());
+        if(reverse) Collections.reverse(list);
+        list.forEach(target::addFirst);
     }
 
     public String getFirstElements() {
@@ -37,18 +44,4 @@ public class CargoCrane {
                 .collect(Collectors.joining());
     }
 
-    public void crateMover9001() {
-        input.instructions()
-                .forEach(this::move2);
-    }
-
-    private void move2(InstructionDto instructionDto) {
-        Deque<String> target = input.stacks().get(instructionDto.to());
-        Deque<String> from = input.stacks().get(instructionDto.from());
-        List<String> list = IntStream.rangeClosed(1, instructionDto.count())
-                .mapToObj(i -> from.poll())
-                .collect(Collectors.toList());
-        Collections.reverse(list);
-        list.forEach(target::addFirst);
-    }
 }
