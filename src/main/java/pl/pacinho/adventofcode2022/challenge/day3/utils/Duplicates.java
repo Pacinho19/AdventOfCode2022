@@ -32,6 +32,6 @@ public class Duplicates {
 
     private static boolean findLetter(List<Character> l, Character ch) {
         return l.stream()
-                .anyMatch(c -> c==ch);
+                .anyMatch(c -> c == ch);
     }
 }
