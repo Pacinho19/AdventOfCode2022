@@ -21,7 +21,7 @@ public class CommandFunction {
 
     public static final BiConsumer<String, FileSystem> DIR = (String param, FileSystem filesystem) ->
             filesystem.getActualLocation().addFile(
-                    new MyFile(filesystem.getActualLocation(), param.replace(CommandType.DIR.getCmd(), "").trim(), 0, FileType.DIR)
+                    new MyFile(filesystem.getActualLocation(), param.split(" ")[1], 0, FileType.DIR)
             );
     public static final BiConsumer<String, FileSystem> FILE = (String param, FileSystem filesystem) ->
             filesystem.getActualLocation().addFile(

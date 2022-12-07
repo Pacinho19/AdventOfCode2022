@@ -20,11 +20,12 @@ public class Day7Part2 implements CalculateI {
 
     @Override
     public long calculate(String filePath) {
-        FileUtils.readTxt(new File(filePath))
-                .stream()
-                .skip(1)
-                .map(s -> new Command(s, CommandType.parse(s)))
-                .forEach(c -> c.runCommand(FileSystem.getInstance()));
+        if (FileSystem.getInstance().getRoot() == null)
+            FileUtils.readTxt(new File(filePath))
+                    .stream()
+                    .skip(1)
+                    .map(s -> new Command(s, CommandType.parse(s)))
+                    .forEach(c -> c.runCommand(FileSystem.getInstance()));
 
         long missingSize = Math.abs(FILE_SYSTEM_SIZE - FileSystem.getInstance().getRoot().getSize() - UPDATE_REQUIRED_SIZE);
 
