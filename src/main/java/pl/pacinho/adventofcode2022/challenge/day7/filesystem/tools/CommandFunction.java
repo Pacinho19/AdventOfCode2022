@@ -6,9 +6,12 @@ import pl.pacinho.adventofcode2022.challenge.day7.model.MyFile;
 import pl.pacinho.adventofcode2022.challenge.day7.model.enums.FileType;
 
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class CommandFunction {
-    public static final BiConsumer<String, FileSystem> CD = (String param, FileSystem filesystem) -> {
+
+    private static  final FileSystem filesystem = FileSystem.getInstance();
+    public static final Consumer<String> CD = (String param) -> {
         String name = param.replace(CommandType.CD.getCmd(), "").trim();
         MyFile dir;
         if (name.equals(".."))
@@ -19,11 +22,11 @@ public class CommandFunction {
         filesystem.setActualLocation(dir);
     };
 
-    public static final BiConsumer<String, FileSystem> DIR = (String param, FileSystem filesystem) ->
+    public static final Consumer<String> DIR = (String param) ->
             filesystem.getActualLocation().addFile(
                     new MyFile(filesystem.getActualLocation(), param.split(" ")[1], 0, FileType.DIR)
             );
-    public static final BiConsumer<String, FileSystem> FILE = (String param, FileSystem filesystem) ->
+    public static final Consumer<String> FILE = (String param) ->
             filesystem.getActualLocation().addFile(
                     new MyFile(filesystem.getActualLocation(), param.split(" ")[1], Long.parseLong(param.split(" ")[0]), FileType.FILE)
             );

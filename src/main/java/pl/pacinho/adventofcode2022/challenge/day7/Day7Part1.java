@@ -22,7 +22,7 @@ public class Day7Part1 implements CalculateI {
                 .stream()
                 .skip(1)
                 .map(s -> new Command(s, CommandType.parse(s)))
-                .forEach(c -> c.runCommand(FileSystem.getInstance()));
+                .forEach(Command::runCommand);
 
         return FileSystem.getInstance()
                 .getRoot()

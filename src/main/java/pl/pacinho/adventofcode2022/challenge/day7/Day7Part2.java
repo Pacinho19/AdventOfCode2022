@@ -25,7 +25,7 @@ public class Day7Part2 implements CalculateI {
                     .stream()
                     .skip(1)
                     .map(s -> new Command(s, CommandType.parse(s)))
-                    .forEach(c -> c.runCommand(FileSystem.getInstance()));
+                    .forEach(Command::runCommand);
 
         long missingSize = Math.abs(FILE_SYSTEM_SIZE - FileSystem.getInstance().getRoot().getSize() - UPDATE_REQUIRED_SIZE);
 

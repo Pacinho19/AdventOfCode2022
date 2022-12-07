@@ -7,6 +7,7 @@ import pl.pacinho.adventofcode2022.challenge.day7.model.FileSystem;
 
 import java.util.Arrays;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 @RequiredArgsConstructor
 public enum CommandType {
@@ -18,11 +19,11 @@ public enum CommandType {
 
     @Getter
     private final String cmd;
-    private final BiConsumer<String, FileSystem> function;
+    private final Consumer<String> function;
 
-    public void runCommand(String params, FileSystem filesystem) {
+    public void runCommand(String params) {
         if (function == null) return;
-        function.accept(params, filesystem);
+        function.accept(params);
     }
 
     public static CommandType parse(String text) {
