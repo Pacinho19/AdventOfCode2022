@@ -20,7 +20,7 @@ public class Day7Part2 implements CalculateI {
 
     @Override
     public long calculate(String filePath) {
-        if (FileSystem.getInstance().getRoot() == null)
+        if (FileSystem.getInstance().getRoot().getSize()==0)
             FileUtils.readTxt(new File(filePath))
                     .stream()
                     .skip(1)
