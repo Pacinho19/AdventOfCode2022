@@ -10,10 +10,11 @@ import java.io.File;
 
 public class Day9Part1 implements CalculateI {
 
+    private final int TAIL_LENGTH = 1;
     @Override
     public long calculate(String filePath) {
 
-        Elf elf = new Elf();
+        Elf elf = new Elf(TAIL_LENGTH);
         MoveLogic moveLogic = new MoveLogic(elf);
 
         FileUtils.readTxt(new File(filePath))
@@ -22,6 +23,7 @@ public class Day9Part1 implements CalculateI {
                 .forEach(moveLogic::goMove);
 
         return elf.getTail()
+                .get(TAIL_LENGTH-1)
                 .getVisitedPositions()
                 .size();
     }

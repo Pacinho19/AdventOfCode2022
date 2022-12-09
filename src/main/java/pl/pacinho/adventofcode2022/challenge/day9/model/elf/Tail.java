@@ -3,6 +3,7 @@ package pl.pacinho.adventofcode2022.challenge.day9.model.elf;
 import lombok.Getter;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -13,7 +14,7 @@ public class Tail extends Body {
 
     public Tail() {
         super();
-        this.visitedPositions = new HashSet<>();
+        this.visitedPositions = new LinkedHashSet<>();
         addPosition(); //Start pos
     }
 

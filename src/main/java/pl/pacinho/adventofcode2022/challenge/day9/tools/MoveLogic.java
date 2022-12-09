@@ -1,10 +1,13 @@
 package pl.pacinho.adventofcode2022.challenge.day9.tools;
 
+import pl.pacinho.adventofcode2022.challenge.day9.model.elf.Body;
 import pl.pacinho.adventofcode2022.challenge.day9.model.elf.Elf;
 import pl.pacinho.adventofcode2022.challenge.day9.model.InstructionDto;
+import pl.pacinho.adventofcode2022.challenge.day9.model.elf.Tail;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Comparator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
@@ -19,8 +22,10 @@ public class MoveLogic {
     public void goMove(InstructionDto i) {
         IntStream.range(0, i.step())
                 .boxed()
-                .forEach(step ->
-                        i.move().goMove(elf)
+                .forEach(step -> {
+                            i.move().goMove(elf);
+                            debug(elf);
+                        }
                 );
     }
 
@@ -29,66 +34,104 @@ public class MoveLogic {
     public static final Consumer<Elf> HEAD_LEFT = elf -> elf.getHead().changeX(-1);
     public static final Consumer<Elf> HEAD_RIGHT = elf -> elf.getHead().changeX(1);
 
-    public static final Consumer<Elf> TAIL_UP = elf -> {
-        if (checkConnectWithHead(elf)) return;
-        else if (inTheSameCol(elf)) elf.getTail().changePosition(t -> t.changeY(1));
-        else moveDiagonally(elf);
+    public static final BiConsumer<Elf, Integer> TAIL_UP = (elf, tailIndex) -> {
+        if (checkConnectWithParent(elf, tailIndex)) return;
+        else if (inTheSameCol(elf, tailIndex)) elf.getTail().get(tailIndex).changePosition(t -> t.changeY(1));
+        else moveDiagonally(elf, tailIndex);
     };
 
-    public static final Consumer<Elf> TAIL_DOWN = elf -> {
-        if (checkConnectWithHead(elf)) return;
-        else if (inTheSameCol(elf)) elf.getTail().changePosition(t -> t.changeY(-1));
-        else moveDiagonally(elf);
+    public static final BiConsumer<Elf, Integer> TAIL_DOWN = (elf, tailIndex) -> {
+        if (checkConnectWithParent(elf, tailIndex)) return;
+        else if (inTheSameCol(elf, tailIndex)) elf.getTail().get(tailIndex).changePosition(t -> t.changeY(-1));
+        else moveDiagonally(elf, tailIndex);
     };
 
-    public static final Consumer<Elf> TAIL_LEFT = elf -> {
-        if (checkConnectWithHead(elf)) return;
-        else if (inTheSameRow(elf)) elf.getTail().changePosition(t -> t.changeX(-1));
-        else moveDiagonally(elf);
+    public static final BiConsumer<Elf, Integer> TAIL_LEFT = (elf, tailIndex) -> {
+        if (checkConnectWithParent(elf, tailIndex)) return;
+        else if (inTheSameRow(elf, tailIndex)) elf.getTail().get(tailIndex).changePosition(t -> t.changeX(-1));
+        else moveDiagonally(elf, tailIndex);
 
     };
 
-    public static final Consumer<Elf> TAIL_RIGHT = elf -> {
-        if (checkConnectWithHead(elf)) return;
-        else if (inTheSameRow(elf)) elf.getTail().changePosition(t -> t.changeX(1));
-        else moveDiagonally(elf);
+    public static final BiConsumer<Elf, Integer> TAIL_RIGHT = (elf, tailIndex) -> {
+        if (checkConnectWithParent(elf, tailIndex)) return;
+        else if (inTheSameRow(elf, tailIndex)) elf.getTail().get(tailIndex).changePosition(t -> t.changeX(1));
+        else moveDiagonally(elf, tailIndex);
     };
 
-    private static void moveDiagonally(Elf elf) {
-        int[] newTailPos = Arrays.stream(NeighborsUtils.getNeighborsDiagonally(elf.getTail().getX(), elf.getTail().getY())
+    private static void moveDiagonally(Elf elf, Integer tailIndex) {
+        if (tailIndex == 8) {
+            int x = 0;
+        }
+        Tail t = elf.getTail().get(tailIndex);
+        int[] newTailPos = Arrays.stream(NeighborsUtils.getNeighborsDiagonally(t.getX(), t.getY())
                         .stream()
-                        .filter(pos -> checkConnectWithHead(elf, pos))
+                        .filter(pos -> checkConnectWithParent(elf, pos, tailIndex))
                         .findFirst()
                         .orElseThrow(() -> new IllegalStateException("Illegal diagonally state"))
                         .split(","))
                 .mapToInt(Integer::parseInt)
                 .toArray();
 
-        elf.getTail().jump(newTailPos);
+        t.jump(newTailPos);
     }
 
-    private static boolean checkConnectWithHead(Elf elf, String pos) {
+    private static boolean checkConnectWithParent(Elf elf, String pos, int tailIndex) {
         int[] posArr = Arrays.stream(pos.split(","))
                 .mapToInt(Integer::parseInt)
                 .toArray();
         return NeighborsUtils.getNeighbors(posArr[0], posArr[1])
                 .stream()
-                .anyMatch(ngh -> ngh.equals(elf.getHead().getPosition()));
+                .anyMatch(ngh -> ngh.equals(getParent(elf, tailIndex).getPosition()));
     }
 
 
-    private static boolean inTheSameRow(Elf elf) {
-        return elf.getTail().getY() == elf.getHead().getY();
+    private static boolean inTheSameRow(Elf elf, Integer tailIndex) {
+        return elf.getTail().get(tailIndex).getY() == getParent(elf, tailIndex).getY();
     }
 
-    private static boolean inTheSameCol(Elf elf) {
-        return elf.getTail().getX() == elf.getHead().getX();
+    private static boolean inTheSameCol(Elf elf, Integer tailIndex) {
+        return elf.getTail().get(tailIndex).getX() == getParent(elf, tailIndex).getX();
     }
 
-    private static boolean checkConnectWithHead(Elf elf) {
-        return NeighborsUtils.getNeighbors(elf.getTail().getX(), elf.getTail().getY())
+    private static boolean checkConnectWithParent(Elf elf, Integer tailIndex) {
+        Tail t = elf.getTail().get(tailIndex);
+        return NeighborsUtils.getNeighbors(t.getX(), t.getY())
                 .stream()
-                .anyMatch(ngh -> ngh.equals(elf.getHead().getPosition()));
+                .anyMatch(ngh -> ngh.equals(getParent(elf, tailIndex).getPosition()));
+    }
+
+    private static Body getParent(Elf elf, Integer tailIndex) {
+        return tailIndex == 0 ?
+                elf.getHead()
+                : elf.getTail().get(tailIndex - 1);
+    }
+
+    private void debug(Elf elf) {
+        System.out.println("\n=================\n");
+
+        for (int y = 15; y >= -15; y--) {
+            for (int x = -15; x <= 15; x++) {
+                int finalX = x;
+                int finalY = y;
+
+                if (elf.getHead().getX() == finalX && elf.getHead().getY() == finalY) {
+                    System.out.print("H");
+                    continue;
+                }
+
+                int i = elf.getTail()
+                        .stream()
+                        .filter(t -> t.getX() == finalX && t.getY() == finalY)
+                        .mapToInt(t1 -> elf.getTail().indexOf(t1) + 1)
+                        .filter(i1 -> i1 > 0)
+                        .max()
+                        .orElse(-1);
+
+                System.out.print(i == -1 ? "." : i);
+            }
+            System.out.print("\n");
+        }
     }
 
 

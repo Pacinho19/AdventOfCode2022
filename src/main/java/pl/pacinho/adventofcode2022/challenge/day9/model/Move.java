@@ -6,7 +6,9 @@ import pl.pacinho.adventofcode2022.challenge.day9.model.elf.Elf;
 import pl.pacinho.adventofcode2022.challenge.day9.tools.MoveLogic;
 
 import java.util.Arrays;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
 
 @Getter
 @RequiredArgsConstructor
@@ -19,7 +21,7 @@ public enum Move {
 
     private final String sign;
     private final Consumer<Elf> headMove;
-    private final Consumer<Elf> tailMove;
+    private final BiConsumer<Elf, Integer> tailMove;
 
     public static Move findBySign(String sign) {
         return Arrays.stream(Move.values())
@@ -30,7 +32,9 @@ public enum Move {
 
     public void goMove(Elf elf) {
         headMove.accept(elf);
-        tailMove.accept(elf);
+        IntStream.range(0, elf.getTail().size())
+                .boxed()
+                .forEach(i -> tailMove.accept(elf, i));
     }
 
 }
