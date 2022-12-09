@@ -1,5 +1,6 @@
 package pl.pacinho.adventofcode2022.challenge.day9.tools;
 
+import pl.pacinho.adventofcode2022.challenge.day9.model.Move;
 import pl.pacinho.adventofcode2022.challenge.day9.model.elf.Body;
 import pl.pacinho.adventofcode2022.challenge.day9.model.elf.Elf;
 import pl.pacinho.adventofcode2022.challenge.day9.model.InstructionDto;
@@ -24,7 +25,7 @@ public class MoveLogic {
                 .boxed()
                 .forEach(step -> {
                             i.move().goMove(elf);
-                            debug(elf);
+                            //debug(elf);
                         }
                 );
     }
@@ -36,35 +37,57 @@ public class MoveLogic {
 
     public static final BiConsumer<Elf, Integer> TAIL_UP = (elf, tailIndex) -> {
         if (checkConnectWithParent(elf, tailIndex)) return;
-        else if (inTheSameCol(elf, tailIndex)) elf.getTail().get(tailIndex).changePosition(t -> t.changeY(1));
-        else moveDiagonally(elf, tailIndex);
+        else if (inTheSameCol(elf, tailIndex))
+            elf.getTail().get(tailIndex).changePosition(t -> t.changeY(1));
+        else if (inTheSameRow(elf, tailIndex))
+            elf.getTail().get(tailIndex)
+                    .jump(new int[]{
+                            getParent(elf, tailIndex).getX() + getJumpStep(getParent(elf, tailIndex).getX(), elf.getTail().get(tailIndex).getX()),
+                            elf.getTail().get(tailIndex).getY()});
+        else
+            moveDiagonally(elf, tailIndex);
     };
 
     public static final BiConsumer<Elf, Integer> TAIL_DOWN = (elf, tailIndex) -> {
         if (checkConnectWithParent(elf, tailIndex)) return;
-        else if (inTheSameCol(elf, tailIndex)) elf.getTail().get(tailIndex).changePosition(t -> t.changeY(-1));
-        else moveDiagonally(elf, tailIndex);
+        else if (inTheSameCol(elf, tailIndex))
+            elf.getTail().get(tailIndex).changePosition(t -> t.changeY(-1));
+        else if (inTheSameRow(elf, tailIndex))
+            elf.getTail().get(tailIndex)
+                    .jump(new int[]{
+                            getParent(elf, tailIndex).getX() + getJumpStep(getParent(elf, tailIndex).getX(), elf.getTail().get(tailIndex).getX()),
+                            elf.getTail().get(tailIndex).getY()});
+        else
+            moveDiagonally(elf, tailIndex);
     };
 
     public static final BiConsumer<Elf, Integer> TAIL_LEFT = (elf, tailIndex) -> {
         if (checkConnectWithParent(elf, tailIndex)) return;
-        else if (inTheSameRow(elf, tailIndex)) elf.getTail().get(tailIndex).changePosition(t -> t.changeX(-1));
-        else if (inTheSameCol(elf, tailIndex)) elf.getTail().get(tailIndex).jump(new int[]{elf.getTail().get(tailIndex).getX(), getParent(elf, tailIndex).getY()-1});
-        else moveDiagonally(elf, tailIndex);
-
+        else if (inTheSameRow(elf, tailIndex))
+            elf.getTail().get(tailIndex).changePosition(t -> t.changeX(-1));
+        else if (inTheSameCol(elf, tailIndex))
+            elf.getTail().get(tailIndex)
+                    .jump(new int[]{
+                            elf.getTail().get(tailIndex).getX(),
+                            getParent(elf, tailIndex).getY() + getJumpStep(getParent(elf, tailIndex).getY(), elf.getTail().get(tailIndex).getY())});
+        else
+            moveDiagonally(elf, tailIndex);
     };
 
     public static final BiConsumer<Elf, Integer> TAIL_RIGHT = (elf, tailIndex) -> {
         if (checkConnectWithParent(elf, tailIndex)) return;
-        else if (inTheSameRow(elf, tailIndex)) elf.getTail().get(tailIndex).changePosition(t -> t.changeX(1));
-        else if (inTheSameCol(elf, tailIndex)) elf.getTail().get(tailIndex).jump(new int[]{elf.getTail().get(tailIndex).getX(), getParent(elf, tailIndex).getY()-1});
-        else moveDiagonally(elf, tailIndex);
+        else if (inTheSameRow(elf, tailIndex))
+            elf.getTail().get(tailIndex).changePosition(t -> t.changeX(1));
+        else if (inTheSameCol(elf, tailIndex))
+            elf.getTail().get(tailIndex)
+                    .jump(new int[]{
+                            elf.getTail().get(tailIndex).getX(),
+                            getParent(elf, tailIndex).getY() + getJumpStep(getParent(elf, tailIndex).getY(), elf.getTail().get(tailIndex).getY())});
+        else
+            moveDiagonally(elf, tailIndex);
     };
 
     private static void moveDiagonally(Elf elf, Integer tailIndex) {
-        if (tailIndex == 8) {
-            int x = 0;
-        }
         Tail t = elf.getTail().get(tailIndex);
         int[] newTailPos = Arrays.stream(NeighborsUtils.getNeighborsDiagonally(t.getX(), t.getY())
                         .stream()
@@ -107,6 +130,10 @@ public class MoveLogic {
         return tailIndex == 0 ?
                 elf.getHead()
                 : elf.getTail().get(tailIndex - 1);
+    }
+
+    private static int getJumpStep(int y, Integer selfY) {
+        return y > selfY ? -1 : 1;
     }
 
     private void debug(Elf elf) {
