@@ -49,6 +49,7 @@ public class MoveLogic {
     public static final BiConsumer<Elf, Integer> TAIL_LEFT = (elf, tailIndex) -> {
         if (checkConnectWithParent(elf, tailIndex)) return;
         else if (inTheSameRow(elf, tailIndex)) elf.getTail().get(tailIndex).changePosition(t -> t.changeX(-1));
+        else if (inTheSameCol(elf, tailIndex)) elf.getTail().get(tailIndex).jump(new int[]{elf.getTail().get(tailIndex).getX(), getParent(elf, tailIndex).getY()-1});
         else moveDiagonally(elf, tailIndex);
 
     };
@@ -56,6 +57,7 @@ public class MoveLogic {
     public static final BiConsumer<Elf, Integer> TAIL_RIGHT = (elf, tailIndex) -> {
         if (checkConnectWithParent(elf, tailIndex)) return;
         else if (inTheSameRow(elf, tailIndex)) elf.getTail().get(tailIndex).changePosition(t -> t.changeX(1));
+        else if (inTheSameCol(elf, tailIndex)) elf.getTail().get(tailIndex).jump(new int[]{elf.getTail().get(tailIndex).getX(), getParent(elf, tailIndex).getY()-1});
         else moveDiagonally(elf, tailIndex);
     };
 
