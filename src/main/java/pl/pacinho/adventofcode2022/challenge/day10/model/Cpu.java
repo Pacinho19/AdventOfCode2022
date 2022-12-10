@@ -7,6 +7,8 @@ import java.util.List;
 
 public class Cpu {
 
+    @Getter
+    private int cycle;
     @Setter
     private List<InstructionDto> instructions;
     private int actualInstruction;
@@ -19,6 +21,7 @@ public class Cpu {
         this.actualInstruction = 0;
         this.instructionCycle = 0;
         this.x = 1;
+        this.cycle = 0;
     }
 
     private static Cpu self;
@@ -32,6 +35,7 @@ public class Cpu {
         this.actualInstruction = 0;
         instructionCycle = 1;
         x = 1;
+        cycle = 0;
     }
 
     public void nextInstructionCycle() {
@@ -41,6 +45,7 @@ public class Cpu {
     public void runCommand() {
         InstructionDto instructionDto = instructions.get(actualInstruction);
         instructionDto.getCommand().run(instructionDto.getValue());
+        cycle++;
     }
 
     public void changeX(Integer value) {
@@ -51,5 +56,9 @@ public class Cpu {
     public void resetInstructionCycle() {
         instructionCycle = 1;
         actualInstruction++;
+    }
+
+    public boolean instructionsFinished() {
+        return actualInstruction >= instructions.size();
     }
 }
