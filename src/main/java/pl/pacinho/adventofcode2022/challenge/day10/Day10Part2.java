@@ -8,6 +8,7 @@ import pl.pacinho.adventofcode2022.utils.FileUtils;
 
 import java.io.File;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Day10Part2 implements CalculateTextI {
@@ -25,22 +26,17 @@ public class Day10Part2 implements CalculateTextI {
         Cpu cpu = Cpu.getInstance();
         cpu.setInstructions(instructions);
 
-        StringBuilder out = new StringBuilder();
-        int position = 0;
-        int lines = 0;
-        while (!cpu.instructionsFinished()) {
-            out.append(Painter.getSign(position));
-            position++;
-            cpu.runCommand();
-            if (cpu.getCycle() % CRT_LENGTH == 0) {
-                out.append("\n");
-                position = 0;
-                lines++;
-            }
-            if (lines == CRT_HEIGHT)
-                break;
-        }
-        return out.toString();
+        return IntStream.range(0, CRT_HEIGHT)
+                .boxed()
+                .map(i -> IntStream.range(0, CRT_LENGTH)
+                        .boxed()
+                        .map(j -> {
+                            String sign = Painter.getSign(cpu.getCycle() % CRT_LENGTH);
+                            cpu.runCommand();
+                            return sign;
+                        })
+                        .collect(Collectors.joining()))
+                .collect(Collectors.joining("\n"));
     }
 
     public static void main(String[] args) {

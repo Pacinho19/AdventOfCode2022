@@ -57,8 +57,4 @@ public class Cpu {
         instructionCycle = 1;
         actualInstruction++;
     }
-
-    public boolean instructionsFinished() {
-        return actualInstruction >= instructions.size();
-    }
 }
