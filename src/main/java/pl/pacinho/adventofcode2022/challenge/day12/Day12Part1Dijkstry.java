@@ -13,9 +13,8 @@ public class Day12Part1Dijkstry implements CalculateI {
 
     @Override
     public long calculate(String filePath) {
-        AreaDijkstry area = new AreaDijkstry(FileUtils.readTxt(new File(filePath)));
-        area.checkPaths();
-        return area.getMinPath();
+        return new AreaDijkstry(FileUtils.readTxt(new File(filePath)))
+                .checkPaths();
     }
 
     public static void main(String[] args) {

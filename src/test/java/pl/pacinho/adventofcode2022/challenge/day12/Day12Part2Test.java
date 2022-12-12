@@ -7,6 +7,6 @@ public class Day12Part2Test extends TestCase {
 
     @Test
     public void testCalculate() {
-        assertEquals(0, new Day12Part2().calculate("challenges\\day12\\example.txt"));
+        assertEquals(29, new Day12Part2().calculate("challenges\\day12\\example.txt"));
     }
 }

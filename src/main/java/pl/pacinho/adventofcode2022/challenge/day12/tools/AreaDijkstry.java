@@ -11,10 +11,8 @@ public class AreaDijkstry {
 
     private LinkedHashMap<String, Integer> dV;
     private LinkedHashMap<String, String> pV;
-    private static final char END_SIGN = 'E';
-    private static final char START_SIGN = 'S';
-    private static String END_LOCATION;
-    private static String START_LOCATION;
+    private String END_LOCATION;
+    private String START_LOCATION;
 
     private static final List<ImmutablePair> NEIGHBORS = List.of(
             new ImmutablePair<>(-1, 0),
@@ -26,43 +24,40 @@ public class AreaDijkstry {
     private PositionDto[][] area;
 
     private List<String> completed;
-    private final int ROW_COUNT;
-    private final int COL_COUNT;
+    private int ROW_COUNT;
+    private int COL_COUNT;
+
+    public AreaDijkstry(PositionDto[][] area) {
+        this.area = area;
+        initParams();
+    }
 
     public AreaDijkstry(List<String> lines) {
-        this.area = parseArea(lines);
+        this.area = AreaTools.parse(lines);
+        initParams();
+        this.START_LOCATION = AreaTools.findLocation(AreaTools.START_SIGN, area);
+    }
+
+    private void initParams() {
         this.ROW_COUNT = area.length;
         this.COL_COUNT = area[0].length;
+        this.END_LOCATION = AreaTools.findLocation(AreaTools.END_SIGN, area);
     }
 
-    private PositionDto[][] parseArea(List<String> lines) {
-        PositionDto[][] area = new PositionDto[lines.size()][lines.get(0).length()];
-        for (int i = 0; i < lines.size(); i++) {
-            String[] split = lines.get(i).split("");
-            for (int j = 0; j < split.length; j++) {
-                if (split[j].charAt(0) == END_SIGN)
-                    END_LOCATION = i + "," + j;
-                else if (split[j].charAt(0) == START_SIGN) {
-                    area[i][j] = new PositionDto(i, j, 'a'); //START POSITION
-                    if (START_LOCATION == null)
-                        START_LOCATION = i + "," + j;
-                    continue;
-                }
-                area[i][j] = new PositionDto(i, j, split[j].charAt(0));
-            }
-        }
-        return area;
+    public long checkPaths(String startLocation) {
+        this.START_LOCATION = startLocation;
+        return checkPaths();
     }
 
-    public void checkPaths() {
+    public long checkPaths() {
         fill_dV();
         fill_pV();
 
         completed = new ArrayList<>();
         while (completed.size() < ROW_COUNT * COL_COUNT) {
-            if (completed.size() > 0 && completed.size() % 100 == 0) {
-                System.out.println(completed.size());
-            }
+//            if (completed.size() > 0 && completed.size() % 100 == 0) {
+//                System.out.println(completed.size());
+//            }
             String key = Collections.min(
                     dV.entrySet()
                             .stream()
@@ -71,6 +66,8 @@ public class AreaDijkstry {
                     , Map.Entry.comparingByValue()).getKey();
             checkPoint(key);
         }
+        System.out.println("Checking " + START_LOCATION + " end");
+        return getMinPath();
     }
 
     private void checkPoint(String point) {
@@ -112,7 +109,12 @@ public class AreaDijkstry {
         PositionDto neigh = area[row][col];
         PositionDto currentPosition = area[Integer.parseInt(split[0])][Integer.parseInt(split[1])];
 
-        char sign = neigh.sign() == END_SIGN ? 'z' : neigh.sign();
+        char sign = neigh.sign() == AreaTools.END_SIGN
+                ? 'z'
+                : neigh.sign() == AreaTools.START_SIGN
+                ? 'a' :
+                neigh.sign();
+
         return AlphabetUtils.alphabet.indexOf(sign) <= AlphabetUtils.alphabet.indexOf(currentPosition.sign()) + 1
                 ? neigh : null;
     }
@@ -132,7 +134,7 @@ public class AreaDijkstry {
         dV.put(START_LOCATION, 0);
     }
 
-    public long getMinPath() {
+    private long getMinPath() {
         return dV.get(END_LOCATION);
     }
 
